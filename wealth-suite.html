@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Compound — Personal Wealth Suite</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0B0F1A;
+    --surface:#121828;
+    --surface-alt:#1A2237;
+    --border:#232C42;
+    --gold:#C9A227;
+    --gold-bright:#E8C468;
+    --silver:#AEB7C2;
+    --green:#4FA878;
+    --red:#C56A54;
+    --text:#EDF0F5;
+    --text-muted:#8A93A6;
+    --text-faint:#5B6478;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  ::selection{ background:var(--gold); color:#0B0F1A; }
+
+  /* ---------- Header ---------- */
+  header{
+    padding:28px 20px 20px;
+    text-align:center;
+    border-bottom:1px solid var(--border);
+    position:sticky; top:0; z-index:20;
+    background:rgba(11,15,26,0.92);
+    backdrop-filter:blur(10px);
+  }
+  .brand{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:26px;
+    letter-spacing:0.3px;
+  }
+  .brand span{ color:var(--gold-bright); font-style:italic; font-weight:500; }
+  .tagline{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--text-faint);
+    margin-top:4px;
+  }
+
+  /* ---------- Nav ---------- */
+  nav{
+    display:flex;
+    gap:6px;
+    overflow-x:auto;
+    padding:14px 16px;
+    max-width:960px;
+    margin:0 auto;
+    scrollbar-width:none;
+  }
+  nav::-webkit-scrollbar{ display:none; }
+  .navbtn{
+    flex:0 0 auto;
+    background:transparent;
+    border:1px solid var(--border);
+    color:var(--text-muted);
+    font-family:'Inter',sans-serif;
+    font-size:13px;
+    font-weight:500;
+    padding:9px 16px;
+    border-radius:999px;
+    cursor:pointer;
+    transition:all .15s ease;
+    white-space:nowrap;
+  }
+  .navbtn:hover{ border-color:var(--gold); color:var(--text); }
+  .navbtn.active{
+    background:var(--gold);
+    border-color:var(--gold);
+    color:#0B0F1A;
+    font-weight:600;
+  }
+
+  main{ max-width:820px; margin:0 auto; padding:8px 20px 80px; }
+  .panel{ display:none; animation:fade .25s ease; }
+  .panel.active{ display:block; }
+  @keyframes fade{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+  h2.section-title{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:22px;
+    margin:22px 0 6px;
+  }
+  p.section-sub{
+    color:var(--text-muted);
+    font-size:13.5px;
+    margin:0 0 20px;
+    line-height:1.5;
+  }
+
+  .card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:22px;
+    margin-bottom:18px;
+  }
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  @media (max-width:520px){ .grid2{ grid-template-columns:1fr; } }
+
+  label{
+    display:block;
+    font-size:12px;
+    color:var(--text-muted);
+    margin-bottom:6px;
+    font-weight:500;
+  }
+  .field{ margin-bottom:16px; }
+  input[type=number], select{
+    width:100%;
+    background:var(--surface-alt);
+    border:1px solid var(--border);
+    color:var(--text);
+    padding:11px 12px;
+    border-radius:8px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:14px;
+    outline:none;
+    transition:border-color .15s;
+  }
+  select{ font-family:'Inter',sans-serif; }
+  input:focus, select:focus{ border-color:var(--gold); }
+
+  button.calc{
+    background:var(--gold);
+    color:#0B0F1A;
+    border:none;
+    font-weight:700;
+    font-size:14px;
+    padding:12px 22px;
+    border-radius:8px;
+    cursor:pointer;
+    width:100%;
+    margin-top:4px;
+    letter-spacing:0.3px;
+  }
+  button.calc:hover{ background:var(--gold-bright); }
+
+  .result{
+    margin-top:20px;
+    padding-top:18px;
+    border-top:1px dashed var(--border);
+  }
+  .result-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    padding:8px 0;
+    font-size:14px;
+  }
+  .result-row .lbl{ color:var(--text-muted); }
+  .result-row .val{
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:600;
+    font-size:16px;
+  }
+  .result-row .val.big{ font-size:22px; color:var(--gold-bright); }
+  .result-row .val.green{ color:var(--green); }
+  .result-row .val.red{ color:var(--red); }
+
+  .bars{ margin-top:18px; display:flex; flex-direction:column; gap:8px; }
+  .bar-row{ display:flex; align-items:center; gap:10px; font-size:12px; }
+  .bar-label{ width:56px; color:var(--text-faint); font-family:'IBM Plex Mono',monospace; flex-shrink:0; }
+  .bar-track{ flex:1; background:var(--surface-alt); border-radius:4px; height:20px; overflow:hidden; position:relative; }
+  .bar-fill{ height:100%; background:linear-gradient(90deg, var(--gold), var(--gold-bright)); border-radius:4px; }
+  .bar-val{ width:110px; text-align:right; font-family:'IBM Plex Mono',monospace; color:var(--text-muted); flex-shrink:0; }
+
+  .rule-card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-left:3px solid var(--gold);
+    border-radius:10px;
+    padding:16px 18px;
+    margin-bottom:12px;
+  }
+  .rule-card h3{ margin:0 0 6px; font-size:15px; font-family:'Fraunces',serif; font-weight:600; }
+  .rule-card p{ margin:0; font-size:13.5px; color:var(--text-muted); line-height:1.55; }
+
+  .asset-tabs{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px; }
+  .asset-tab{
+    background:var(--surface-alt);
+    border:1px solid var(--border);
+    color:var(--text-muted);
+    padding:8px 14px;
+    border-radius:8px;
+    font-size:12.5px;
+    cursor:pointer;
+    font-weight:500;
+  }
+  .asset-tab.active{ background:var(--gold); border-color:var(--gold); color:#0B0F1A; font-weight:700; }
+
+  .note{
+    font-size:12px;
+    color:var(--text-faint);
+    margin-top:14px;
+    line-height:1.5;
+  }
+
+  footer{
+    text-align:center;
+    padding:30px 20px 40px;
+    color:var(--text-faint);
+    font-size:11.5px;
+    font-family:'IBM Plex Mono',monospace;
+    letter-spacing:0.5px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">Compound<span>.</span></div>
+  <div class="tagline">Money · Wealth · Investment · Calculators</div>
+</header>
+
+<nav id="mainNav">
+  <button class="navbtn active" data-tab="money">Money</button>
+  <button class="navbtn" data-tab="wealth">Wealth</button>
+  <button class="navbtn" data-tab="investment">Investment</button>
+  <button class="navbtn" data-tab="calculators">Calculators</button>
+  <button class="navbtn" data-tab="compound">Compound & Lumpsum</button>
+  <button class="navbtn" data-tab="rules">Money Rules</button>
+  <button class="navbtn" data-tab="passive">Passive Income</button>
+  <button class="navbtn" data-tab="emi">EMI</button>
+</nav>
+
+<main>
+
+  <!-- ============ MONEY ============ -->
+  <section class="panel active" id="money">
+    <h2 class="section-title">Money — where you stand today</h2>
+    <p class="section-sub">Quick net-worth snapshot. Assets minus liabilities, in one place.</p>
+    <div class="card">
+      <div class="grid2">
+        <div class="field"><label>Cash & bank balance (₹)</label><input type="number" id="m_cash" value="50000"></div>
+        <div class="field"><label>Investments (stocks/MF/ETF) (₹)</label><input type="number" id="m_inv" value="0"></div>
+        <div class="field"><label>Gold / Silver value (₹)</label><input type="number" id="m_gold" value="0"></div>
+        <div class="field"><label>Other assets (₹)</label><input type="number" id="m_other" value="0"></div>
+        <div class="field"><label>Loans / debt (₹)</label><input type="number" id="m_debt" value="0"></div>
+        <div class="field"><label>Monthly income (₹)</label><input type="number" id="m_income" value="0"></div>
+      </div>
+      <button class="calc" onclick="calcMoney()">Calculate net worth</button>
+      <div class="result" id="m_result" style="display:none">
+        <div class="result-row"><span class="lbl">Total assets</span><span class="val" id="m_assets">—</span></div>
+        <div class="result-row"><span class="lbl">Total liabilities</span><span class="val red" id="m_liab">—</span></div>
+        <div class="result-row"><span class="lbl">Net worth</span><span class="val big" id="m_net">—</span></div>
+      </div>
+      <p class="note">Net worth = total assets − total liabilities. Track this monthly; the number itself matters less than the trend line.</p>
+    </div>
+  </section>
+
+  <!-- ============ WEALTH ============ -->
+  <section class="panel" id="wealth">
+    <h2 class="section-title">Wealth — the long compounding curve</h2>
+    <p class="section-sub">See what your current wealth becomes if you keep investing monthly, across decades.</p>
+    <div class="card">
+      <div class="grid2">
+        <div class="field"><label>Current age</label><input type="number" id="w_age" value="30"></div>
+        <div class="field"><label>Target age</label><input type="number" id="w_target" value="60"></div>
+        <div class="field"><label>Current wealth (₹)</label><input type="number" id="w_current" value="50000"></div>
+        <div class="field"><label>Monthly investment (₹)</label><input type="number" id="w_monthly" value="10000"></div>
+        <div class="field"><label>Expected annual return (%)</label><input type="number" id="w_return" value="12"></div>
+        <div class="field"><label>Expected inflation (%)</label><input type="number" id="w_inflation" value="6"></div>
+      </div>
+      <button class="calc" onclick="calcWealth()">Project my wealth</button>
+      <div class="result" id="w_result" style="display:none">
+        <div class="result-row"><span class="lbl">Total invested by target age</span><span class="val" id="w_invested">—</span></div>
+        <div class="result-row"><span class="lbl">Wealth at target age (nominal)</span><span class="val big" id="w_final">—</span></div>
+        <div class="result-row"><span class="lbl">Wealth in today's value (real)</span><span class="val green" id="w_real">—</span></div>
+        <div class="bars" id="w_bars"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ INVESTMENT ============ -->
+  <section class="panel" id="investment">
+    <h2 class="section-title">Investment growth by asset class</h2>
+    <p class="section-sub">Pick an asset, see how a lumpsum grows at its typical long-term return. Edit the return if you have your own view.</p>
+    <div class="card">
+      <div class="asset-tabs" id="assetTabs">
+        <div class="asset-tab active" data-cagr="12" data-name="Stocks / Equity">Stocks</div>
+        <div class="asset-tab" data-cagr="12" data-name="Mutual Funds">Mutual Funds</div>
+        <div class="asset-tab" data-cagr="11" data-name="ETF (Nifty/Index)">ETF</div>
+        <div class="asset-tab" data-cagr="8" data-name="Gold">Gold</div>
+        <div class="asset-tab" data-cagr="7" data-name="Silver">Silver</div>
+        <div class="asset-tab" data-cagr="9" data-name="Commodity (basket)">Commodity</div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Amount to invest (₹)</label><input type="number" id="i_amount" value="100000"></div>
+        <div class="field"><label>Expected CAGR (%)</label><input type="number" id="i_cagr" value="12"></div>
+        <div class="field"><label>Years</label><input type="number" id="i_years" value="10"></div>
+        <div class="field"><label>Asset selected</label><input type="text" id="i_name" value="Stocks / Equity" disabled></div>
+      </div>
+      <button class="calc" onclick="calcInvestment()">Project growth</button>
+      <div class="result" id="i_result" style="display:none">
+        <div class="result-row"><span class="lbl">Invested amount</span><span class="val" id="i_invested">—</span></div>
+        <div class="result-row"><span class="lbl">Future value</span><span class="val big" id="i_future">—</span></div>
+        <div class="result-row"><span class="lbl">Total gain</span><span class="val green" id="i_gain">—</span></div>
+      </div>
+      <p class="note">Historical long-run India CAGR ranges (approx): Equity/Nifty 11–13%, Gold 7–9%, Silver 6–8%. Actual returns vary year to year — these are planning estimates, not guarantees.</p>
+    </div>
+  </section>
+
+  <!-- ============ CALCULATORS (Age / SIP / Reducing) ============ -->
+  <section class="panel" id="calculators">
+    <h2 class="section-title">Calculators</h2>
+    <p class="section-sub">Age-based retirement corpus, SIP future value, and reducing-balance loan payoff.</p>
+
+    <div class="card">
+      <h3 style="font-family:'Fraunces',serif; margin-top:0;">Retirement corpus by age</h3>
+      <div class="grid2">
+        <div class="field"><label>Current age</label><input type="number" id="a_age" value="30"></div>
+        <div class="field"><label>Retirement age</label><input type="number" id="a_retire" value="60"></div>
+        <div class="field"><label>Life expectancy (age)</label><input type="number" id="a_life" value="85"></div>
+        <div class="field"><label>Current monthly expense (₹)</label><input type="number" id="a_expense" value="25000"></div>
+        <div class="field"><label>Inflation (%)</label><input type="number" id="a_inflation" value="6"></div>
+        <div class="field"><label>Post-retirement return (%)</label><input type="number" id="a_return" value="7"></div>
+      </div>
+      <button class="calc" onclick="calcAge()">Calculate corpus needed</button>
+      <div class="result" id="a_result" style="display:none">
+        <div class="result-row"><span class="lbl">Monthly expense at retirement</span><span class="val" id="a_futureexpense">—</span></div>
+        <div class="result-row"><span class="lbl">Years in retirement</span><span class="val" id="a_years">—</span></div>
+        <div class="result-row"><span class="lbl">Corpus needed at retirement</span><span class="val big" id="a_corpus">—</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="font-family:'Fraunces',serif; margin-top:0;">SIP future value</h3>
+      <div class="grid2">
+        <div class="field"><label>Monthly SIP (₹)</label><input type="number" id="s_amount" value="10000"></div>
+        <div class="field"><label>Expected annual return (%)</label><input type="number" id="s_return" value="12"></div>
+        <div class="field"><label>Duration (years)</label><input type="number" id="s_years" value="15"></div>
+      </div>
+      <button class="calc" onclick="calcSIP()">Calculate SIP value</button>
+      <div class="result" id="s_result" style="display:none">
+        <div class="result-row"><span class="lbl">Total invested</span><span class="val" id="s_invested">—</span></div>
+        <div class="result-row"><span class="lbl">Wealth gained</span><span class="val green" id="s_gain">—</span></div>
+        <div class="result-row"><span class="lbl">Maturity value</span><span class="val big" id="s_final">—</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="font-family:'Fraunces',serif; margin-top:0;">Reducing balance loan calculator</h3>
+      <div class="grid2">
+        <div class="field"><label>Loan amount (₹)</label><input type="number" id="r_amount" value="500000"></div>
+        <div class="field"><label>Annual interest rate (%)</label><input type="number" id="r_rate" value="10"></div>
+        <div class="field"><label>Tenure (years)</label><input type="number" id="r_years" value="5"></div>
+      </div>
+      <button class="calc" onclick="calcReducing()">Calculate EMI</button>
+      <div class="result" id="r_result" style="display:none">
+        <div class="result-row"><span class="lbl">Monthly EMI</span><span class="val big" id="r_emi">—</span></div>
+        <div class="result-row"><span class="lbl">Total interest paid</span><span class="val red" id="r_interest">—</span></div>
+        <div class="result-row"><span class="lbl">Total payment</span><span class="val" id="r_total">—</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ COMPOUND & LUMPSUM ============ -->
+  <section class="panel" id="compound">
+    <h2 class="section-title">Compound growth & Lumpsum</h2>
+    <p class="section-sub">One-time investment left to compound, versus the same money growing year by year.</p>
+    <div class="card">
+      <div class="grid2">
+        <div class="field"><label>Lumpsum amount (₹)</label><input type="number" id="c_amount" value="100000"></div>
+        <div class="field"><label>Expected annual return (%)</label><input type="number" id="c_return" value="12"></div>
+        <div class="field"><label>Years</label><input type="number" id="c_years" value="10"></div>
+        <div class="field"><label>Compounding frequency</label>
+          <select id="c_freq">
+            <option value="1">Annually</option>
+            <option value="4">Quarterly</option>
+            <option value="12" selected>Monthly</option>
+          </select>
+        </div>
+      </div>
+      <button class="calc" onclick="calcCompound()">Calculate compound growth</button>
+      <div class="result" id="c_result" style="display:none">
+        <div class="result-row"><span class="lbl">Principal</span><span class="val" id="c_principal">—</span></div>
+        <div class="result-row"><span class="lbl">Interest earned</span><span class="val green" id="c_interest">—</span></div>
+        <div class="result-row"><span class="lbl">Maturity value</span><span class="val big" id="c_final">—</span></div>
+        <div class="bars" id="c_bars"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MONEY RULES ============ -->
+  <section class="panel" id="rules">
+    <h2 class="section-title">Money rules worth following</h2>
+    <p class="section-sub">Simple thumb rules, not laws of physics — but they hold up well over time.</p>
+
+    <div class="rule-card">
+      <h3>50 / 30 / 20 rule</h3>
+      <p>50% of income to needs, 30% to wants, 20% to savings/investing. Adjust upward on savings as income grows — the goal is a rising savings rate, not a fixed one.</p>
+    </div>
+    <div class="rule-card">
+      <h3>Rule of 72</h3>
+      <p>Divide 72 by your expected annual return to find years to double your money. At 12% return, money doubles roughly every 6 years.</p>
+    </div>
+    <div class="rule-card">
+      <h3>Emergency fund first</h3>
+      <p>Keep 6 months of expenses in a liquid, safe instrument before investing aggressively. This is what lets you stay invested when markets fall, instead of forced selling.</p>
+    </div>
+    <div class="rule-card">
+      <h3>100 − age rule (equity allocation)</h3>
+      <p>Rough guide: equity % of portfolio ≈ 100 − your age. At 30, ~70% equity is reasonable; the rest in debt/gold as ballast. Adjust for personal risk appetite.</p>
+    </div>
+    <div class="rule-card">
+      <h3>Pay yourself first</h3>
+      <p>Move savings/investment amount out on income day, before spending. Whatever's left is what you spend — not the other way around.</p>
+    </div>
+    <div class="rule-card">
+      <h3>Avoid lifestyle inflation</h3>
+      <p>When income rises, let savings rate rise with it — don't let expenses absorb the entire raise. This single habit is what separates compounding wealth from a rising-income treadmill.</p>
+    </div>
+    <div class="rule-card">
+      <h3>Debt that builds vs. debt that drains</h3>
+      <p>Debt for appreciating assets or income-generating skills (education, business) can be worth it. Debt for depreciating consumption (gadgets, lifestyle) rarely is.</p>
+    </div>
+    <div class="rule-card">
+      <h3>Time in the market &gt; timing the market</h3>
+      <p>Staying invested through cycles has historically outperformed trying to predict tops and bottoms, especially for long-horizon goals like retirement.</p>
+    </div>
+  </section>
+
+  <!-- ============ PASSIVE INCOME ============ -->
+  <section class="panel" id="passive">
+    <h2 class="section-title">Passive income — corpus needed</h2>
+    <p class="section-sub">How much invested corpus generates the monthly passive income you want, at a safe withdrawal rate.</p>
+    <div class="card">
+      <div class="grid2">
+        <div class="field"><label>Desired monthly passive income (₹)</label><input type="number" id="p_income" value="50000"></div>
+        <div class="field"><label>Safe withdrawal rate (% per year)</label><input type="number" id="p_rate" value="4"></div>
+      </div>
+      <button class="calc" onclick="calcPassive()">Calculate corpus required</button>
+      <div class="result" id="p_result" style="display:none">
+        <div class="result-row"><span class="lbl">Annual income needed</span><span class="val" id="p_annual">—</span></div>
+        <div class="result-row"><span class="lbl">Corpus required</span><span class="val big" id="p_corpus">—</span></div>
+      </div>
+      <p class="note">4% is the classic conservative safe-withdrawal benchmark. Dividend-paying stocks, REITs, bonds, or a diversified basket can all contribute to this corpus — the rate you pick should reflect your actual portfolio mix.</p>
+    </div>
+  </section>
+
+  <!-- ============ EMI ============ -->
+  <section class="panel" id="emi">
+    <h2 class="section-title">EMI calculator</h2>
+    <p class="section-sub">Standard equal-monthly-installment calculation for any loan — home, personal, vehicle.</p>
+    <div class="card">
+      <div class="grid2">
+        <div class="field"><label>Loan amount (₹)</label><input type="number" id="e_amount" value="1000000"></div>
+        <div class="field"><label>Annual interest rate (%)</label><input type="number" id="e_rate" value="9"></div>
+        <div class="field"><label>Tenure (years)</label><input type="number" id="e_years" value="20"></div>
+      </div>
+      <button class="calc" onclick="calcEMI()">Calculate EMI</button>
+      <div class="result" id="e_result" style="display:none">
+        <div class="result-row"><span class="lbl">Monthly EMI</span><span class="val big" id="e_emi">—</span></div>
+        <div class="result-row"><span class="lbl">Total interest</span><span class="val red" id="e_interest">—</span></div>
+        <div class="result-row"><span class="lbl">Total payment (principal + interest)</span><span class="val" id="e_total">—</span></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>COMPOUND · Personal Wealth Suite · figures are planning estimates, not financial advice</footer>
+
+<script>
+  // ---------- Nav ----------
+  document.querySelectorAll('.navbtn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.navbtn').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.tab).classList.add('active');
+      window.scrollTo({top:0, behavior:'smooth'});
+    });
+  });
+
+  // ---------- Helpers ----------
+  function inr(n){
+    if(isNaN(n)) return '—';
+    n = Math.round(n);
+    return '₹' + n.toLocaleString('en-IN');
+  }
+
+  // ---------- MONEY (net worth) ----------
+  function calcMoney(){
+    const cash = parseFloat(document.getElementById('m_cash').value)||0;
+    const inv = parseFloat(document.getElementById('m_inv').value)||0;
+    const gold = parseFloat(document.getElementById('m_gold').value)||0;
+    const other = parseFloat(document.getElementById('m_other').value)||0;
+    const debt = parseFloat(document.getElementById('m_debt').value)||0;
+    const assets = cash+inv+gold+other;
+    const net = assets - debt;
+    document.getElementById('m_assets').textContent = inr(assets);
+    document.getElementById('m_liab').textContent = inr(debt);
+    document.getElementById('m_net').textContent = inr(net);
+    document.getElementById('m_result').style.display='block';
+  }
+
+  // ---------- WEALTH projection ----------
+  function calcWealth(){
+    const age = parseFloat(document.getElementById('w_age').value)||0;
+    const target = parseFloat(document.getElementById('w_target').value)||0;
+    const current = parseFloat(document.getElementById('w_current').value)||0;
+    const monthly = parseFloat(document.getElementById('w_monthly').value)||0;
+    const ret = (parseFloat(document.getElementById('w_return').value)||0)/100;
+    const infl = (parseFloat(document.getElementById('w_inflation').value)||0)/100;
+    const years = target - age;
+    if(years<=0){ alert('Target age must be greater than current age'); return; }
+
+    const monthlyRate = ret/12;
+    const months = years*12;
+    let fv = current*Math.pow(1+ret, years);
+    if(monthlyRate>0){
+      fv += monthly * ((Math.pow(1+monthlyRate, months)-1)/monthlyRate) * (1+monthlyRate);
+    } else {
+      fv += monthly*months;
+    }
+    const invested = current + monthly*months;
+    const real = fv / Math.pow(1+infl, years);
+
+    document.getElementById('w_invested').textContent = inr(invested);
+    document.getElementById('w_final').textContent = inr(fv);
+    document.getElementById('w_real').textContent = inr(real);
+
+    // decade bars
+    const barsEl = document.getElementById('w_bars');
+    barsEl.innerHTML = '';
+    const checkpoints = [];
+    let step = years<=10 ? Math.max(1,Math.round(years/5)) : 5;
+    for(let y=step; y<years; y+=step) checkpoints.push(y);
+    checkpoints.push(years);
+    const maxVal = fv;
+    checkpoints.forEach(y=>{
+      const m = y*12;
+      let v = current*Math.pow(1+ret, y);
+      if(monthlyRate>0){
+        v += monthly * ((Math.pow(1+monthlyRate, m)-1)/monthlyRate) * (1+monthlyRate);
+      } else { v += monthly*m; }
+      const pct = Math.max(4, (v/maxVal)*100);
+      const row = document.createElement('div');
+      row.className='bar-row';
+      row.innerHTML = `<div class="bar-label">Age ${age+y}</div><div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div><div class="bar-val">${inr(v)}</div>`;
+      barsEl.appendChild(row);
+    });
+
+    document.getElementById('w_result').style.display='block';
+  }
+
+  // ---------- INVESTMENT (asset class) ----------
+  document.querySelectorAll('.asset-tab').forEach(tab=>{
+    tab.addEventListener('click', ()=>{
+      document.querySelectorAll('.asset-tab').forEach(t=>t.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('i_cagr').value = tab.dataset.cagr;
+      document.getElementById('i_name').value = tab.dataset.name;
+    });
+  });
+  function calcInvestment(){
+    const amount = parseFloat(document.getElementById('i_amount').value)||0;
+    const cagr = (parseFloat(document.getElementById('i_cagr').value)||0)/100;
+    const years = parseFloat(document.getElementById('i_years').value)||0;
+    const fv = amount*Math.pow(1+cagr, years);
+    document.getElementById('i_invested').textContent = inr(amount);
+    document.getElementById('i_future').textContent = inr(fv);
+    document.getElementById('i_gain').textContent = inr(fv-amount);
+    document.getElementById('i_result').style.display='block';
+  }
+
+  // ---------- Age / retirement corpus ----------
+  function calcAge(){
+    const age = parseFloat(document.getElementById('a_age').value)||0;
+    const retire = parseFloat(document.getElementById('a_retire').value)||0;
+    const life = parseFloat(document.getElementById('a_life').value)||0;
+    const expense = parseFloat(document.getElementById('a_expense').value)||0;
+    const infl = (parseFloat(document.getElementById('a_inflation').value)||0)/100;
+    const postRet = (parseFloat(document.getElementById('a_return').value)||0)/100;
+
+    const yearsToRetire = retire-age;
+    const yearsInRetirement = life-retire;
+    if(yearsToRetire<=0 || yearsInRetirement<=0){ alert('Check your age values'); return; }
+
+    const futureExpense = expense*Math.pow(1+infl, yearsToRetire);
+    // real rate during retirement
+    const realRate = (1+postRet)/(1+infl) - 1;
+    const monthlyReal = realRate/12;
+    const monthsInRetirement = yearsInRetirement*12;
+    let corpus;
+    if(monthlyReal>0){
+      corpus = futureExpense * (1-Math.pow(1+monthlyReal, -monthsInRetirement))/monthlyReal;
+    } else {
+      corpus = futureExpense*monthsInRetirement;
+    }
+
+    document.getElementById('a_futureexpense').textContent = inr(futureExpense)+' / month';
+    document.getElementById('a_years').textContent = yearsInRetirement+' years';
+    document.getElementById('a_corpus').textContent = inr(corpus);
+    document.getElementById('a_result').style.display='block';
+  }
+
+  // ---------- SIP ----------
+  function calcSIP(){
+    const amount = parseFloat(document.getElementById('s_amount').value)||0;
+    const ret = (parseFloat(document.getElementById('s_return').value)||0)/100;
+    const years = parseFloat(document.getElementById('s_years').value)||0;
+    const monthlyRate = ret/12;
+    const months = years*12;
+    let fv;
+    if(monthlyRate>0){
+      fv = amount * ((Math.pow(1+monthlyRate, months)-1)/monthlyRate) * (1+monthlyRate);
+    } else { fv = amount*months; }
+    const invested = amount*months;
+    document.getElementById('s_invested').textContent = inr(invested);
+    document.getElementById('s_gain').textContent = inr(fv-invested);
+    document.getElementById('s_final').textContent = inr(fv);
+    document.getElementById('s_result').style.display='block';
+  }
+
+  // ---------- Reducing balance (same as EMI, duplicated section) ----------
+  function calcReducing(){
+    const P = parseFloat(document.getElementById('r_amount').value)||0;
+    const annualRate = parseFloat(document.getElementById('r_rate').value)||0;
+    const years = parseFloat(document.getElementById('r_years').value)||0;
+    const r = annualRate/12/100;
+    const n = years*12;
+    const emi = r>0 ? (P*r*Math.pow(1+r,n))/(Math.pow(1+r,n)-1) : P/n;
+    const total = emi*n;
+    const interest = total-P;
+    document.getElementById('r_emi').textContent = inr(emi);
+    document.getElementById('r_interest').textContent = inr(interest);
+    document.getElementById('r_total').textContent = inr(total);
+    document.getElementById('r_result').style.display='block';
+  }
+
+  // ---------- Compound & Lumpsum ----------
+  function calcCompound(){
+    const P = parseFloat(document.getElementById('c_amount').value)||0;
+    const rate = (parseFloat(document.getElementById('c_return').value)||0)/100;
+    const years = parseFloat(document.getElementById('c_years').value)||0;
+    const freq = parseFloat(document.getElementById('c_freq').value)||1;
+    const fv = P*Math.pow(1+rate/freq, freq*years);
+    document.getElementById('c_principal').textContent = inr(P);
+    document.getElementById('c_interest').textContent = inr(fv-P);
+    document.getElementById('c_final').textContent = inr(fv);
+
+    const barsEl = document.getElementById('c_bars');
+    barsEl.innerHTML='';
+    let step = years<=10 ? Math.max(1,Math.round(years/5)) : 5;
+    const checkpoints=[];
+    for(let y=step;y<years;y+=step) checkpoints.push(y);
+    checkpoints.push(years);
+    checkpoints.forEach(y=>{
+      const v = P*Math.pow(1+rate/freq, freq*y);
+      const pct = Math.max(4,(v/fv)*100);
+      const row=document.createElement('div');
+      row.className='bar-row';
+      row.innerHTML = `<div class="bar-label">Yr ${y}</div><div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div><div class="bar-val">${inr(v)}</div>`;
+      barsEl.appendChild(row);
+    });
+    document.getElementById('c_result').style.display='block';
+  }
+
+  // ---------- Passive income ----------
+  function calcPassive(){
+    const monthly = parseFloat(document.getElementById('p_income').value)||0;
+    const rate = (parseFloat(document.getElementById('p_rate').value)||0)/100;
+    const annual = monthly*12;
+    const corpus = rate>0 ? annual/rate : 0;
+    document.getElementById('p_annual').textContent = inr(annual);
+    document.getElementById('p_corpus').textContent = inr(corpus);
+    document.getElementById('p_result').style.display='block';
+  }
+
+  // ---------- EMI ----------
+  function calcEMI(){
+    const P = parseFloat(document.getElementById('e_amount').value)||0;
+    const annualRate = parseFloat(document.getElementById('e_rate').value)||0;
+    const years = parseFloat(document.getElementById('e_years').value)||0;
+    const r = annualRate/12/100;
+    const n = years*12;
+    const emi = r>0 ? (P*r*Math.pow(1+r,n))/(Math.pow(1+r,n)-1) : P/n;
+    const total = emi*n;
+    const interest = total-P;
+    document.getElementById('e_emi').textContent = inr(emi);
+    document.getElementById('e_interest').textContent = inr(interest);
+    document.getElementById('e_total').textContent = inr(total);
+    document.getElementById('e_result').style.display='block';
+  }
+</script>
+
+</body>
+</html>
